@@ -2,7 +2,7 @@ use inc::Module::Install;
 name 'Acme-PHPish';
 all_from 'lib/Acme/PHPish.pm';
 
-# requires '';
+requires 'B::OPCheck' => 0.27;
 
 tests 't/*.t';
 author_tests 'xt';

@@ -3,6 +3,53 @@ package Acme::PHPish;
 use strict;
 use warnings;
 our $VERSION = '0.01';
+BEGIN {
+    require B::OPCheck;
+};
+
+sub import {
+    my ( $class,) = @_;
+
+    my $opname = 'anonlist';
+    my $mode = 'check';
+    my $sub = sub {
+        die "php doesn't have a array constructor";
+    };
+
+    $^H |= 0x120000;  # set HINT_LOCALIZE_HH + an unused bit to work around a %^H bug
+
+    my $by_opname = $^H{OPCHECK_leavescope} ||= {};
+    my $guards    = $by_opname->{$opname}   ||= [];
+    push @$guards, Scope::Guard->new(
+        sub {
+            no strict 'refs';
+            &{"B::OPCheck::leavescope"}( $opname, $mode, $sub );
+        }
+    );
+
+    no strict 'refs';
+    &{"B::OPCheck::enterscope"}( $opname, $mode, $sub );
+
+    my $pkg = caller(0);
+    *{"${pkg}::array"} = *{"${class}::_array"};
+}
+
+sub unimport {
+    my ( $class, $opname ) = @_;
+
+    if ( defined $opname ) {
+        my $by_opname = $^H{OPCHECK_leavescope};
+        delete $by_opname->{$opname};
+        return if scalar keys %$by_opname;    # don't delete other things
+    }
+
+    delete $^H{OPCHECK_leavescope};
+    $^H &= ~0x120000;
+}
+
+sub _array {
+    [@_]
+}
 
 1;
 __END__
@@ -13,7 +60,7 @@ Acme::PHPish -
 
 =head1 SYNOPSIS
 
-  use Acme::PHPish;
+    use Acme::PHPish;
 
 =head1 DESCRIPTION
 
