@@ -61,16 +61,22 @@ Acme::PHPish -
 =head1 SYNOPSIS
 
     use Acme::PHPish;
+    [qw/1 2 3/]; # => syntax error in compile time
+
+    array(1,2,3); # ok!
 
 =head1 DESCRIPTION
 
-Acme::PHPish is
+PHP is friendly with newbies.PHP has array() function but PHP doesn't have a anonymous arrayref constructor syntax.
+Anonymous arrayref constructor is not a friendly with newbies??
 
 =head1 AUTHOR
 
 Tokuhiro Matsuno E<lt>tokuhirom jsdfkla gmail fsadkjl comE<gt>
 
 =head1 SEE ALSO
+
+L<PHP>, L<B:OPCheck>
 
 =head1 LICENSE
 
